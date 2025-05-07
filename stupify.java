@@ -1,7 +1,10 @@
 import java.util.Scanner;
 import java.util.concurrent.locks.LockSupport;
+import java.util.Dictionary;
 import java.util.Random;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 class Double_node {
 
@@ -214,6 +217,56 @@ class double_linked_list{
         }
         this.modo_aleatorio(idx - 1, nodo_entrante.next);
     }
+
+    public Integer encontrar_moda(){
+        HashMap<Integer, Integer> moda = new HashMap<>();
+        encontrar_moda(this.head, moda);
+
+        Integer duracion_mas_repetida = 0;
+        Integer frecuencia_mas_alta = 0;
+
+        for (Map.Entry<Integer, Integer> entry : moda.entrySet()) {
+            int duracion = entry.getKey();
+            int frecuencia = entry.getValue();
+
+            if(frecuencia > frecuencia_mas_alta){
+                frecuencia_mas_alta = frecuencia;
+                duracion_mas_repetida = duracion;
+            }
+        }
+        return duracion_mas_repetida;
+    }
+
+    private HashMap<Integer, Integer> encontrar_moda(Double_node nodo_entrante, HashMap<Integer, Integer> moda){
+
+        if (nodo_entrante == null){
+            return moda;
+        }
+
+        if(moda.containsKey(nodo_entrante.value.duracion)){
+            moda.put(nodo_entrante.value.duracion, moda.get(nodo_entrante.value.duracion) + 1);
+        }
+
+        else{
+            moda.put(nodo_entrante.value.duracion, 0);
+        }
+        return this.encontrar_moda(nodo_entrante.next, moda);
+    }
+
+    public void segundo_menos(Integer moda){
+        segundo_menos(moda, this.head);
+    }
+
+    private void segundo_menos(Integer moda, Double_node nodo_entrante){
+        if (nodo_entrante == null){
+            return;
+        }
+
+        if (moda.equals(nodo_entrante.value.duracion)){
+            nodo_entrante.value.quitar_segundo();
+        }
+        segundo_menos(moda, nodo_entrante.next);
+    }
 }
 
 
@@ -231,6 +284,10 @@ class Cancion{
 
     public void imprimir_cancion(){
         System.out.println(this.titulo + " - " + this.artista + " (" + this.duracion + "s)\n");
+    }
+
+    public void quitar_segundo(){
+        this.duracion -= 1;
     }
 }
 
@@ -291,7 +348,9 @@ public class stupify {
                 System.out.println("\r    7. Activar modo aleatorio");
                 System.out.println("\r    8. Adelantar una canción");
                 System.out.println("\r    9. cambiar de playlist");
-                System.out.println("\r    10. Salir\n");
+                System.out.println("\r    10. Salir");
+                System.out.println("\r    11 Bajar un segundo\n");
+                
                 if(flag_eleccion && flag_reproducir){
                     System.out.print("\r  Elige una opcion: ");
                     eleccion = sc.nextInt();
@@ -431,6 +490,11 @@ public class stupify {
                 case 10:
                     flag_salir = false;
                     break;
+
+                case 11:
+                    Integer moda = play_list_actual.encontrar_moda();
+                    play_list_actual.segundo_menos(moda);
+                    flag_reproducir = true;
                 
                 default:
                     System.out.println("ingresa una opcion valida\n");
